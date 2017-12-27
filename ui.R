@@ -27,8 +27,9 @@ ui = fluidPage(
                    condition = "input.typeInput == 'hashtag'",
                    #Create an input control for entry of unstructured text values
                    textInput("hashtagInput", "Enter search string","", placeholder = "input search string"),
-                   textInput("zipInput", "Enter zipcode (from 00210 to 99950)", placeholder = "input ZIP code"),
-                   textInput("radiusInput", "Enter radius (miles)", placeholder = "input miles")),
+                   #textInput("zipInput", "Enter zipcode (from 00210 to 99950)", placeholder = "input ZIP code"),
+                   textInput("loc", "Enter Loctation (City, Zip, or Address)", placeholder = "input location"),
+                   textInput("rad", "Enter radius (miles)", placeholder = "input miles")),
                  
                  #Condition 2 - Only show this panel if Input type is "Twitter Username"
                  conditionalPanel(
@@ -46,9 +47,9 @@ ui = fluidPage(
       tabsetPanel(
         #tabPanel - Create a tab panel that can be included within a tabsetPanel.
         #Argument plotOutput - used to create a plot as an output element based on the inputid that is passed to it
-        tabPanel("Sentiment Plots TM", plotOutput("plot1")),
+        tabPanel("Sentiment Plots TM",percentage_barUI("Sentiment_Plots_TM")),
         tabPanel("Sentiments Plots TFIDF", plotOutput("plot3")),
-        tabPanel("+/- Plots TM", plotOutput("plot2")),
+        tabPanel("+/- Plots TM", percentage_barUI("Pos_Neg_Plots_TM")),
         tabPanel("+/- Plots TFIDF", plotOutput("plot4")),
         #navbarMenu - Creates a page that contains a top level navigation bar that can be used to toggle a set of tabPanel elements.
         navbarMenu("Word Clouds TM",
