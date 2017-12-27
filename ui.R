@@ -48,9 +48,9 @@ ui = fluidPage(
         #tabPanel - Create a tab panel that can be included within a tabsetPanel.
         #Argument plotOutput - used to create a plot as an output element based on the inputid that is passed to it
         tabPanel("Sentiment Plots TM",percentage_barUI("Sentiment_Plots_TM")),
-        tabPanel("Sentiments Plots TFIDF", plotOutput("plot3")),
+        tabPanel("Sentiments Plots TFIDF", percentage_barUI("Sentiment_Plots_TFIDF")),
         tabPanel("+/- Plots TM", percentage_barUI("Pos_Neg_Plots_TM")),
-        tabPanel("+/- Plots TFIDF", plotOutput("plot4")),
+        tabPanel("+/- Plots TFIDF", percentage_barUI("Pos_Neg_Plots_TFIDF")),
         #navbarMenu - Creates a page that contains a top level navigation bar that can be used to toggle a set of tabPanel elements.
         navbarMenu("Word Clouds TM",
                    #tabPanel - Create a tab panel that can be included within a tabsetPanel

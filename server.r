@@ -46,7 +46,10 @@ server = function(input, output)
     colSums(tm_sentiment())
   })
   tm_emotion_vec = reactive({
-    sort(tm_sentiment_vec()[1:8])
+    aa = sort(tm_sentiment_vec()[1:8])
+   #print(aa)
+    #print(str(aa))
+    aa
   })
   tm_valence_vec = reactive({
     tm_sentiment_vec()[9:10]
@@ -54,77 +57,46 @@ server = function(input, output)
   # ## Rendering TM plots ##
   # renderPlot - Renders a reactive plot that is suitable for assigning to an output slot.
   # In this case the the objects used are plot1 and plot2
-  callModule(percentage_bar,id = "Sentiment_Plots_TM",vec = tm_emotion_vec)
-  callModule(percentage_bar,id = "Pos_Neg_Plots_TM",vec = tm_valence_vec)
-  # output$plot1 = renderPlot({
-  #     # ## creating Barplot for emotions ##
-  #     barplot(
-  #       #Sort  - (or order) a vector or factor (partially) into ascending or descending order
-  #       #prop.table - Express Table Entries as Fraction of Marginal Table
-  #       sort(colSums(prop.table(data1()[, 1:8]))), 
-  #       horiz = TRUE, 
-  #       cex.names = 0.8, 
-  #       las = 1, 
-  #       main = "Emotions in tweets", xlab="Percentage", xlim = c(0,.4))}, 
-  #         width = 700, height = 500)
-  
-  # output$plot2 = renderPlot({
-  #   
-  #     # ## Creating barplot for positive vs negative ##
-  #     barplot(
-  #       sort(colSums(prop.table(data1()[, 9:10]))), 
-  #       horiz = TRUE, 
-  #       cex.names = 0.75, 
-  #       las = 1, 
-  #       main = "Ratio of positive to negative tweets",xlab="Percentage", xlim = c(0,1))},
-  #         width = 700, height = 500)
-  
-  
-  # Creating  reactive to the input actionButton 'goButton' that was created in the the ui function 
-  # eventReactive - Responds to "event-like" reactive inputs, values, and expressions.
-  data2 = reactive ({#eventReactive(input$goButton, {
-    
-    # if (input$typeInput == "hashtag") 
-    # {
-    #   
-    #   # ## Generate geocode string ## #
-    #   geocode.string = getLatLong.zip(enter.zipcode = input$zipInput,radius.mi = input$radiusInput)
-    #   tweetOutput = searchThis(search_string = input$hashtagInput,
-    #                              number.of.tweets = input$numberInput, geocode_string = geocode.string)
-    #   
-    # } 
-    # 
-    # else if (input$typeInput == "username") 
-    # {
-    #   tweetOutput = userTL(user.name = input$usernameInput,number.of.tweets = input$numberInput)
-    # }
-    # 
-    # else {}
-    # 
-    # searchtweet.clean = cleanTweets(tweetOutput)
-    
+  callModule(percentage_bar,id = "Sentiment_Plots_TM",vec = tm_emotion_vec,title = "Emotions in tweets", xlab="Percentage")
+  callModule(percentage_bar,id = "Pos_Neg_Plots_TM",vec = tm_valence_vec, 
+             title = "Ratio of positive to negative tweets",  xlab="Percentage")
+  tfidf_sentiment = reactive({
     searchtweet.tdm.tfidf = tdm.TFIDF(data0())
     nrc.lex = getSentiments.TF_IDF.nrc(searchtweet.tdm.tfidf)
   })
-  
-  # ## Creating a Render plots for TFIDF ##
-  # renderPlot - Renders a reactive plot that is suitable for assigning to an output slot.
-  # In this case the the objects used are plot3 and plot4
-  output$plot3 = renderPlot({
-    barplot(
-      sort(colSums(prop.table(data2()[, 1:8]))), 
-      horiz = TRUE, 
-      cex.names = 0.75, 
-      las = 1, 
-      main = "Emotions in tweets", xlab="Percentage",xlim = c(0,.4))}, width = 700, height = 500)
-  
-  output$plot4 = renderPlot({
-    barplot(
-      sort(colSums(prop.table(data2()[, 9:10]))), 
-      horiz = TRUE, 
-      cex.names = 0.8,
-      las = 1, 
-      main = "Polarity in tweets", xlab="Percentage", xlim = c(0,1))}, width = 700, height = 500)
+  tfidf_sentiment_vec = reactive({
+    colSums(tfidf_sentiment())
+  })
+  tfidf_emotion_vec = reactive({
+    aa = sort(tfidf_sentiment_vec()[1:8])
+    #print(aa)
+    #print(str(aa))
+    aa
+  })
+  tfidf_valence_vec = reactive({
+    tfidf_sentiment_vec()[9:10]
+  }) 
+  callModule(percentage_bar,id = "Sentiment_Plots_TFIDF",vec = tfidf_emotion_vec,title = "Emotions in tweets", xlab="Percentage")
+  callModule(percentage_bar,id = "Pos_Neg_Plots_TFIDF",vec = tfidf_valence_vec, 
+             title = "Ratio of positive to negative tweets",  xlab="Percentage")
+  # # ## Creating a Render plots for TFIDF ##
+  # # renderPlot - Renders a reactive plot that is suitable for assigning to an output slot.
+  # # In this case the the objects used are plot3 and plot4
+  # output$plot3 = renderPlot({
+  #   barplot(
+  #     sort(colSums(prop.table(data2()[, 1:8]))), 
+  #     horiz = TRUE, 
+  #     cex.names = 0.75, 
+  #     las = 1, 
+  #     main = "Emotions in tweets", xlab="Percentage",xlim = c(0,.4))}, width = 700, height = 500)
+  # 
+  # output$plot4 = renderPlot({
+  #   barplot(
+  #     sort(colSums(prop.table(data2()[, 9:10]))), 
+  #     horiz = TRUE, 
+  #     cex.names = 0.8,
+  #     las = 1, 
+  #     main = "Polarity in tweets", xlab="Percentage", xlim = c(0,1))}, width = 700, height = 500)
   
   
   # Creating  reactive to the input actionButton 'goButton' that was created in the the ui function 
