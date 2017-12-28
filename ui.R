@@ -54,12 +54,12 @@ ui = fluidPage(
         #navbarMenu - Creates a page that contains a top level navigation bar that can be used to toggle a set of tabPanel elements.
         navbarMenu("Word Clouds TM",
                    #tabPanel - Create a tab panel that can be included within a tabsetPanel
-                   tabPanel("Positive", wordcloud2Output("wordCloud1", width = "100%", height = "400px")),
+                   tabPanel("Positive", wordcloud2Output("wordCloud_pos_tm", width = "100%", height = "400px")),
                    #wordcloud2Output -used to render a wordcloud object| uses library - wordcloud2
-                   tabPanel("Negative", wordcloud2Output("wordCloud2", width = "100%", height = "400px"))),
+                   tabPanel("Negative", wordcloud2Output("wordCloud_neg_tm", width = "100%", height = "400px"))),
         navbarMenu("Word Clouds TFIDF",
-                   tabPanel("Positive", wordcloud2Output("wordCloud3", width = "100%", height = "400px")),
-                   tabPanel("Negative", wordcloud2Output("wordCloud4", width = "100%", height = "400px"))),
+                   tabPanel("Positive", wordcloud2Output("wordCloud_pos_tfidf", width = "100%", height = "400px")),
+                   tabPanel("Negative", wordcloud2Output("wordCloud_neg_tfidf", width = "100%", height = "400px"))),
         #dataTableOutput -used to render a table as an output
         tabPanel("Tweets", dataTableOutput("tweetTable"))
         ,type = "pills"), width = 9)

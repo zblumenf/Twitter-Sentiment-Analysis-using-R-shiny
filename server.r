@@ -18,15 +18,9 @@ server = function(input, output)
       #clean radius variable and draw error if poorly entered
       radius  = gsub("[^(0-9)|\\.]",'',input$rad) %>% as.numeric()
       validate(need(!is.na(radius) & radius > 0,"Please enter a valide number for radius in miles")) 
-      #getLatLong.zip - to extract the zipcode from the user input and generate a user defined radius 
-      #geocode.string = getLatLong.zip(enter.zipcode = input$zipInput,radius.mi = input$radiusInput)
       tweetOutput = searchTwitter(input$hashtagInput, n = input$numberInput
                     ,geocode = paste0(google_loc$lat, ",", google_loc$lon, ",",radius,"mi"))
-      #tweetOutput - extracts the hashtag provided as input in the shiny application along with the number of tweets and the geographical location
-      # tweetOutput = searchThis(search_string = input$hashtagInput,
-      #                            number.of.tweets = input$numberInput, 
-      #                          geocode_string = paste0(google_loc$lat, ",", google_loc$lon, ",",radius,"mi"))
-      # 
+
     } 
     # Conditional data extraction based on user input, if the InputID selected by user = username
     else if (input$typeInput == "username") 
@@ -79,187 +73,56 @@ server = function(input, output)
   callModule(percentage_bar,id = "Sentiment_Plots_TFIDF",vec = tfidf_emotion_vec,title = "Emotions in tweets", xlab="Percentage")
   callModule(percentage_bar,id = "Pos_Neg_Plots_TFIDF",vec = tfidf_valence_vec, 
              title = "Ratio of positive to negative tweets",  xlab="Percentage")
-  # # ## Creating a Render plots for TFIDF ##
-  # # renderPlot - Renders a reactive plot that is suitable for assigning to an output slot.
-  # # In this case the the objects used are plot3 and plot4
-  # output$plot3 = renderPlot({
-  #   barplot(
-  #     sort(colSums(prop.table(data2()[, 1:8]))), 
-  #     horiz = TRUE, 
-  #     cex.names = 0.75, 
-  #     las = 1, 
-  #     main = "Emotions in tweets", xlab="Percentage",xlim = c(0,.4))}, width = 700, height = 500)
-  # 
-  # output$plot4 = renderPlot({
-  #   barplot(
-  #     sort(colSums(prop.table(data2()[, 9:10]))), 
-  #     horiz = TRUE, 
-  #     cex.names = 0.8,
-  #     las = 1, 
-  #     main = "Polarity in tweets", xlab="Percentage", xlim = c(0,1))}, width = 700, height = 500)
-  
-  
-  # Creating  reactive to the input actionButton 'goButton' that was created in the the ui function 
-  # eventReactive - Responds to "event-like" reactive inputs, values, and expressions.
-  data3 = reactive({ #eventReactive(input$goButton, {
-    
-    # if (input$typeInput == "hashtag") 
-    # {
-    #   geocode.string = getLatLong.zip(enter.zipcode = input$zipInput,radius.mi = input$radiusInput)
-    #   
-    #   tweetOutput = searchThis(search_string = input$hashtagInput,
-    #                              number.of.tweets = input$numberInput, geocode_string = geocode.string)
-    #   
-    # } 
-    # 
-    # else if (input$typeInput == "username") 
-    # {
-    #   userTL = function(user.name,number.of.tweets = 100)
-    #   {
-    #     userTimeline(user.name,n = number.of.tweets)
-    #   }
-    #   
-    #   tweetOutput = userTL(user.name = input$usernameInput,number.of.tweets = input$numberInput)
-    # }
-    # 
-    # else {}
-    
-    
-    # df.tweets <- cleanTweets(tweetOutput)
-  
-    searchtweet.tdm.tm.stopword = tdm.tmStopWord(data0())
-    
-    tweets.positive = generateWordCloud.positive.tmStopWords(searchtweet.tdm.tm.stopword)
-    
-  })
 
+  term_doc_mat_tm = reactive({ #eventReactive(input$goButton, {
+    searchtweet.tdm.tm.stopword = tdm.tmStopWord(data0())
+  })
+  pos_tweets_tm = reactive({ #eventReactive(input$goButton, {
+    tweets.positive = generateWordCloud.positive.tmStopWords(term_doc_mat_tm())
+  })
+  neg_tweets_tm = reactive({ #eventReactive(input$goButton, {
+    tweets.negative = generateWordCloud.negative.tmStopWords(term_doc_mat_tm())
+  })
+  
   # ## Render Positive Wordcloud TM ##
   # renderWordcloud2 - Renders a reactive word cloud that is suitable for assigning to an output slot.
   # In this case the the object used is wordCloud1
-  output$wordCloud1 = renderWordcloud2({wordcloud2(data = data3())})
-  
-  
-  # Creating  reactive to the input actionButton 'goButton' that was created in the the ui function 
-  # eventReactive - Responds to "event-like" reactive inputs, values, and expressions.
-  data4 = reactive({ #eventReactive(input$goButton, {
-    
-    # if (input$typeInput == "hashtag") 
-    # {
-    #   
-    #   geocode.string = getLatLong.zip(enter.zipcode = input$zipInput,radius.mi = input$radiusInput)
-    #   
-    #   tweetOutput = searchThis(search_string = input$hashtagInput,
-    #                              number.of.tweets = input$numberInput, geocode_string = geocode.string)
-    #   
-    # }
-    # 
-    # else if (input$typeInput == "username") 
-    # {
-    #   userTL = function(user.name,number.of.tweets = 100)
-    #   {
-    #     userTimeline(user.name,n = number.of.tweets)
-    #   }
-    #   
-    #   tweetOutput <- userTL(user.name = input$usernameInput,number.of.tweets = input$numberInput)
-    # }
-    # 
-    # else {}
-    # 
-    # 
-    # df.tweets = cleanTweets(tweetOutput)
-    
-    searchtweet.tdm.tm.stopword = tdm.tmStopWord(data0())
-    
-    tweets.negative = generateWordCloud.negative.tmStopWords(searchtweet.tdm.tm.stopword)
-    
+  wordCloud_pos_tm = reactive({ #run reactive to make it update automatically
+    dd =  pos_tweets_tm()
+    wordcloud2(data =dd)
   })
-  
+  output$wordCloud_pos_tm = renderWordcloud2({wordCloud_pos_tm()})
   # ## Render negative wordcloud TM ##
   # renderWordcloud2 - Renders a reactive word cloud that is suitable for assigning to an output slot.
   # In this case the the object used is wordCloud2
-  output$wordCloud2 = renderWordcloud2({wordcloud2(data = data4())})
+  wordCloud_neg_tm = reactive({ #run reactive to make it update automatically
+    dd =  neg_tweets_tm()
+    wordcloud2(data =dd)
+  })
+  output$wordCloud_neg_tm = renderWordcloud2({wordCloud_neg_tm()})
   
-  # Creating  reactive to the input actionButton 'goButton' that was created in the the ui function 
-  # eventReactive - Responds to "event-like" reactive inputs, values, and expressions.
-  data5 = reactive ({ #eventReactive(input$goButton, {
-    
-    # if (input$typeInput == "hashtag") 
-    # {
-    #   
-    #   geocode.string = getLatLong.zip(enter.zipcode = input$zipInput,radius.mi = input$radiusInput)
-    #   
-    #   tweetOutput = searchThis(search_string = input$hashtagInput,
-    #                              number.of.tweets = input$numberInput, geocode_string = geocode.string)
-    #   
-    # } 
-    # 
-    # else if (input$typeInput == "username") 
-    # {
-    #   userTL = function(user.name,number.of.tweets = 100)
-    #   {
-    #     userTimeline(user.name,n = number.of.tweets)
-    #   }
-    #   
-    #   tweetOutput = userTL(user.name = input$usernameInput,number.of.tweets = input$numberInput)
-    # }
-    # 
-    # else {}
-    # 
-    # 
-    # df.tweets = cleanTweets(tweetOutput)
-    
+  term_doc_tfidf  = reactive ({
     tdm.tfidf = tdm.TFIDF(data0())
     
     tdm.tm.nostop = tdm.tm(data0())
-    
-    tweets.positive = generateWordCloud.positive.TF_IDF(tdm.tfidf, tdm.tm.nostop)
-    
+    d_list = list()
+    d_list$tweets.positive = generateWordCloud.positive.TF_IDF(tdm.tfidf, tdm.tm.nostop)
+    d_list$tweets.negative = generateWordCloud.negative.TF_IDF(tdm.tfidf, tdm.tm.nostop)
+    d_list
   })
-  
   # ##Rendering positive wordcloud for TFIDF ## #
   # renderWordcloud2 - Renders a reactive word cloud that is suitable for assigning to an output slot.
   # In this case the the object used is wordCloud3
-  output$wordCloud3 = renderWordcloud2({wordcloud2(data = data5())})
-  
-  # Creating  reactive to the input actionButton 'goButton' that was created in the the ui function 
-  # eventReactive - Responds to "event-like" reactive inputs, values, and expressions.
-  data6 = eventReactive(input$goButton, {
-    
-    # if (input$typeInput == "hashtag") 
-    # {
-    #   
-    #   geocode.string = getLatLong.zip(enter.zipcode = input$zipInput,radius.mi = input$radiusInput)
-    #   
-    #   tweetOutput = searchThis(search_string = input$hashtagInput,
-    #                              number.of.tweets = input$numberInput, geocode_string = geocode.string)
-    #   
-    # } 
-    # 
-    # else if (input$typeInput == "username") 
-    # {
-    #   userTL = function(user.name,number.of.tweets = 100)
-    #   {
-    #     userTimeline(user.name,n = number.of.tweets)
-    #   }
-    #   
-    #   tweetOutput = userTL(user.name = input$usernameInput,number.of.tweets = input$numberInput)
-    # }
-    # 
-    # else {}
-    # df.tweets = cleanTweets(tweetOutput)
-    
-    tdm.tfidf = tdm.TFIDF(data0())
-    
-    tdm.tm.nostop = tdm.tm(data0())
-    
-    tweets.negative = generateWordCloud.negative.TF_IDF(tdm.tfidf, tdm.tm.nostop)
-    
-  })
-  
+  # wordCloud_pos_tfidf= reactive({ #run reactive to make it update automatically
+  #   dd =  pos_tweets_tm()
+  #   wordcloud2(data =dd)
+  # })
+  # out
+  output$wordCloud_pos_tfidf = renderWordcloud2({wordcloud2(data = term_doc_tfidf()$tweets.positive)})
   # ##Render negative wordcloud TFIDF## #
   # renderWordcloud2 - Renders a reactive word cloud that is suitable for assigning to an output slot.
   # In this case the the object used is wordCloud4
-  output$wordCloud4 = renderWordcloud2({wordcloud2(data = data6())})
+  output$wordCloud_neg_tfidf = renderWordcloud2({wordcloud2(data = term_doc_tfidf()$tweets.negative)})
   
   
   # Creating  reactive to the input actionButton 'goButton' that was created in the the ui function 
