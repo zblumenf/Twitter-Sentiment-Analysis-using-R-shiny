@@ -61,7 +61,8 @@ ui = fluidPage(
                    tabPanel("Positive", wordcloud2Output("wordCloud_pos_tfidf", width = "100%", height = "400px")),
                    tabPanel("Negative", wordcloud2Output("wordCloud_neg_tfidf", width = "100%", height = "400px"))),
         #dataTableOutput -used to render a table as an output
-        tabPanel("Tweets", dataTableOutput("tweetTable"))
+        tabPanel("Tweets", dataTableOutput("tweetTable")),
+        tabPanel("Map", leafletOutput("tweetLeaflet"))
         ,type = "pills"), width = 9)
   )
 )

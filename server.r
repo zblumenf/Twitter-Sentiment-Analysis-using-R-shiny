@@ -5,32 +5,33 @@ server = function(input, output)
 {
   # Creating  reactive to the input actionButton 'goButton' that was created in the the ui function 
   # eventReactive - Responds to "event-like" reactive inputs, values, and expressions.
-  ##ggmap query
-
-  data0 = eventReactive(input$goButton, {
+  raw_data = eventReactive(input$goButton,{
     # Conditional data extraction based on user input, if the InputID selected by user = hashtag
     if (input$typeInput == "hashtag") 
     {
       #Google lat-lon location. Zip or city or address....anything googlable.  Draw error if poorly entered
       google_loc = geocode(input$loc,output = "latlona",source="google")
       validate(need(!is.na(google_loc$lon),"Please enter a different location.  Cannot geo-locate"))
-      
       #clean radius variable and draw error if poorly entered
       radius  = gsub("[^(0-9)|\\.]",'',input$rad) %>% as.numeric()
       validate(need(!is.na(radius) & radius > 0,"Please enter a valide number for radius in miles")) 
       tweetOutput = searchTwitter(input$hashtagInput, n = input$numberInput
-                    ,geocode = paste0(google_loc$lat, ",", google_loc$lon, ",",radius,"mi"))
-
+                                  ,geocode = paste0(google_loc$lat, ",", google_loc$lon, ",",radius,"mi"))
+      
     } 
     # Conditional data extraction based on user input, if the InputID selected by user = username
     else if (input$typeInput == "username") 
     {
       #tweetOutput <- userTL(user.name = input$usernameInput,number.of.tweets = input$numberInput)
       tweetOutput <- userTimeline(input$usernameInput,n = input$numberInput)
+      google_loc = data.frame(lat = 39.5, lon = -98.4)
     }
     else {stop("Logical error in data1().  Please contact developers")}
     #Cleans the tweet
-    df.tweets = cleanTweets(tweetOutput)
+    list(tweetOutput = tweetOutput , google_loc = google_loc)
+  })
+  data0 = reactive({   #eventReactive(input$goButton, {
+    df.tweets = cleanTweets(raw_data()$tweetOutput)
   })
   
   tm_sentiment = reactive({
@@ -164,6 +165,20 @@ server = function(input, output)
   # renderDataTable - Renders a reactive data table that is suitable for assigning to an output slot.
   # In this case the the object used is tweetTable
   output$tweetTable = renderDataTable({data7()}, options = list(lengthMenu = c(10, 30, 50), pageLength = 5))
+  
+  # Create a reactive leaflet map
+  mapData =  reactive({ # eventReactive(c(input$keyPressed,input$search_button),{ 
+    tweets <- twListToDF(raw_data()$tweetOutput)
+    tweets$created <- as.character(tweets$created)
+    tweets <- tweets[!is.na(tweets[, "longitude"]), ]
+  })
+  mapTweets <- reactive({
+    map = leaflet() %>% addTiles() %>%
+      addMarkers(as.numeric(mapData()$longitude), as.numeric(mapData()$latitude), 
+                 popup = mapData()$screenName) %>%
+      setView(raw_data()$google_loc$lon, raw_data()$google_loc$lat, zoom = 10)
+  })
+  output$tweetLeaflet = renderLeaflet({mapTweets()})
 
 }
 
